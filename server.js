@@ -1,6 +1,7 @@
 import express from "express";
 const morgan = require("morgan");
 import cors from "cors";
+import {readdirSync} from "fs";
 require("dotenv").config();
 
 // Import routes
@@ -21,6 +22,12 @@ app.use(express.json());
 // app.use(cors({ origin: process.env.CLIENT_URL }));
 
 // Route middlewares
+
+// Auto load route middlewares instead of importing routes manually
+// Import and apply routes
+readdirSync("./routes").map((route) =>
+  app.use("/api", require(`./routes/${route}`))
+);
 
 const port = process.env.PORT || 8000;
 
