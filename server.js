@@ -2,12 +2,22 @@ import express from "express";
 const morgan = require("morgan");
 import cors from "cors";
 import {readdirSync} from "fs";
+import mongoose from "mongoose";
 require("dotenv").config();
 
 // Import routes
 
 // Initialize app
 const app = express();
+
+// Connect to Database
+mongoose
+  .connect(process.env.MONGO_URI, {
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log("Successfully connected to the Database"))
+  .catch((err) => console.log("Database connection error", err));
+
 
 // Global middlewares (to be used on all routes)
 app.use(morgan("dev"));
