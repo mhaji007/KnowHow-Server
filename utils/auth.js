@@ -18,8 +18,8 @@ export const hashPassword = (password) => {
   });
 };
 
-// password: from frontend
-// hashedPassword: from database
+// password: plain password from frontend
+// hashedPassword: hashed password queried from database before user is logged in
 export const comparePassword = (password, hashedPassword) => {
   return bcrypt.compare(password, hashedPassword);
 };
