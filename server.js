@@ -25,6 +25,7 @@ app.use(morgan("dev"));
 // Wildcard cors - anyone domain has access
 // to the application
 app.use(cors());
+// Provides access to data on request body
 app.use(express.json());
 
 // Restrict cors - only specified domains

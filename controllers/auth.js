@@ -1,3 +1,4 @@
 export const register = (req, res) => {
-res.send("Register")
+    console.log(req.body)
+    res.json("Register response from controller")
 }
