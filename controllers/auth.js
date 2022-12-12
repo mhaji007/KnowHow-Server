@@ -58,7 +58,7 @@ export const login = async (req, res) => {
 
     // Check if user exists in database
     const user = await User.findOne({ email }).exec();
-    console.log("user" + user)
+    console.log("user" + user);
     if (!user) res.status(404).send("No user found");
 
     // Compare passwords
@@ -71,7 +71,7 @@ export const login = async (req, res) => {
       // Create signed token
       // First argument is the data to include in the signed token
       // (e.g., here user id is being included).
-      // Once the token is verified later, we 
+      // Once the token is verified later, we
       // will have access to user id as well.
       const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
         expiresIn: process.env.JWT_EXPIRATION_TIME,
@@ -94,5 +94,19 @@ export const login = async (req, res) => {
   } catch (err) {
     console.log(err);
     return res.status(400).send("Error. Try again.");
+  }
+};
+
+// Logout
+
+// Once user logs in we need to clear the cookie on the server
+// and clear the local storage and context on the frontend
+
+export const logout = async (req, res) => {
+  try {
+    res.clearCookie("token");
+    return res.json({ message: "Signout success" });
+  } catch (err) {
+    console.log(err);
   }
 };
