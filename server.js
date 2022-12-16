@@ -3,12 +3,15 @@ const morgan = require("morgan");
 import cors from "cors";
 import {readdirSync} from "fs";
 import mongoose from "mongoose";
+import csrf from "csurf"
+import cookieParser from "cookie-parser"
 require("dotenv").config();
 
-// Import routes
+const csrfProtection = csrf({cookie:true})
 
 // Initialize app
 const app = express();
+
 
 // Connect to Database
 mongoose
@@ -28,6 +31,8 @@ app.use(cors());
 // Provides access to data on request body
 app.use(express.json());
 
+app.use(cookieParser());
+
 // Restrict cors - only specified domains
 // have access to the application
 // app.use(cors({ origin: process.env.CLIENT_URL }));
@@ -39,6 +44,16 @@ app.use(express.json());
 readdirSync("./routes").map((route) =>
   app.use("/api", require(`./routes/${route}`))
 );
+
+// Protect from CSRF
+app.use(csrfProtection);
+
+
+app.get("/api/csrf-token", (req, res) =>{
+  // Send back csrf token
+  res.json({csrfToken: req.csrfToken()})
+})
+
 
 const port = process.env.PORT || 8000;
 
