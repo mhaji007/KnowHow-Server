@@ -16,22 +16,15 @@ export const register = async (req, res) => {
     }
     let userExist = await User.findOne({ email }).exec();
     if (userExist) return res.status(400).send("Email is taken");
-
     // Hash password
-
     const hashedPassword = await hashPassword(password);
-
     // Register user
-
     const user = new User({
       name,
       email,
       password: hashedPassword,
     });
-
     await user.save();
-
-    console.log("saved user", user);
     return res.json({ ok: true });
   } catch (err) {
     console.error(err);
@@ -50,21 +43,12 @@ export const register = async (req, res) => {
 
 export const login = async (req, res) => {
   try {
-    // console.log(req.body);
     const { email, password } = req.body;
-
-    console.log("password: " + password);
-    console.log("email: " + email);
-
     // Check if user exists in database
     const user = await User.findOne({ email }).exec();
-    console.log("user" + user);
     if (!user) res.status(404).send("No user found");
-
     // Compare passwords
     const match = await comparePassword(password, user.password);
-
-    console.log("match====", match);
     if (!match) {
       return res.status(400).send("Error. Try again");
     } else {
@@ -73,21 +57,19 @@ export const login = async (req, res) => {
       // (e.g., here user id is being included).
       // Once the token is verified later, we
       // will have access to user id as well.
+      // This is the token that browsers will automatically
+      // sends to the server on each request
       const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
-        expiresIn: process.env.JWT_EXPIRATION_TIME,
+        expiresIn: "24h",
       });
-
       // Return user and token to client, excluding the hashed password
       user.password = undefined;
-
+      // Only works on https - for production
+      // once we have https with ssl certificate
+      // secure: true
       res.cookie("token", token, {
         httpOnly: true,
-
-        // Only works on https - for production
-        // once we have https with ssl certificate
-        // secure: true
       });
-
       //  Send user as json response
       res.json(user);
     }
@@ -111,17 +93,18 @@ export const logout = async (req, res) => {
   }
 };
 
+// Prtected Route
 
 export const currentUser = async (req, res) => {
   try {
     // user id is made available on req.user by requireSignin middleware
-    // - before password deselects password before sending in the user
-    const user = await User.findById(req.user._id).select("-password").exec()
+    // the "-"" before password deselects password before sending in the user
+    // using req.auth here instead of req.user beacuse req.user is undefined
+    const user = await User.findById(req.auth._id).select("-password").exec();
     // console.log("Current user", user)
-    // return res.json(user)
-    return res.json({ok:true})
+    return res.json(user);
+    // return res.json({ok:true})
+  } catch (err) {
+    console.log(err);
   }
-  catch(err) {
-    console.log(err)
-  }
-}
+};

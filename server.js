@@ -27,7 +27,7 @@ app.use(morgan("dev"));
 
 // Wildcard cors - anyone domain has access
 // to the application
-app.use(cors());
+app.use(cors({credentials: true, origin: 'http://localhost:3000'}))
 // Provides access to data on request body
 app.use(express.json());
 
@@ -42,7 +42,7 @@ app.use(cookieParser());
 // Auto load route middlewares instead of importing routes manually
 // Import and apply routes
 readdirSync("./routes").map((route) =>
-  app.use("/api", require(`./routes/${route}`))
+  app.use("/", require(`./routes/${route}`))
 );
 
 // Protect from CSRF
@@ -50,6 +50,7 @@ app.use(csrfProtection);
 
 
 app.get("/api/csrf-token", (req, res) =>{
+  console.log ("req ====>", req.csrfToken())
   // Send back csrf token
   res.json({csrfToken: req.csrfToken()})
 })
