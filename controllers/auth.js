@@ -60,7 +60,7 @@ export const login = async (req, res) => {
       // This is the token that browsers will automatically
       // sends to the server on each request
       const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
-        expiresIn: "24h",
+        expiresIn: process.env.JWT_EXPIRATION_TIME,
       });
       // Return user and token to client, excluding the hashed password
       user.password = undefined;
@@ -93,13 +93,14 @@ export const logout = async (req, res) => {
   }
 };
 
-// Prtected Route
+// Protected Route
 
 export const currentUser = async (req, res) => {
   try {
     // user id is made available on req.user by requireSignin middleware
     // the "-"" before password deselects password before sending in the user
-    // using req.auth here instead of req.user beacuse req.user is undefined
+    // using req.auth here instead of req.user beacuse the decoded JWT payload 
+    // is now available as req.auth rather than req.user (Migration from v6)
     const user = await User.findById(req.auth._id).select("-password").exec();
     // console.log("Current user", user)
     return res.json(user);
