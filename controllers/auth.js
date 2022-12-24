@@ -1,6 +1,21 @@
 import User from "../models/user";
 import { hashPassword, comparePassword } from "../utils/auth";
 import jwt from "jsonwebtoken";
+import AWS from "aws-sdk"
+
+// AWS config for passing access key and secret, etc.
+
+const awsConfig = {
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  region: process.env.AWS_REGION,
+  apiVersion: process.env.AWS_API_VERSION,
+};
+
+// New instance of SES service required for using AWS SES
+const SES = new AWS.SES(awsConfig);
+
+// Register
 
 export const register = async (req, res) => {
   try {
@@ -111,8 +126,47 @@ export const currentUser = async (req, res) => {
 };
 
 // Test Email
+export const sendEmail = async (req, res) => {
+  const params = {
+    Source: process.env.EMAIL_FROM,
+    // These email addresses should be verified when in sandbox mode
+    Destination: {
+      ToAddresses: ["hadjikhanimehdi@gmail.com"],
+    },
+    // Email addresses that will receive the response
+    ReplyToAddresses: [process.env.EMAIL_FROM],
+    Message: {
+      Body: {
+        Html: {
+          Charset: "UTF-8",
+          // Message body
+          Data: `
+        <html>
+          <h1>
+            Reset password link
+          </h1>
+          <p>
+            Please use the following link to reset your password
+          </p>
+        </html>
+      `,
+        },
+      },
+      Subject: {
+        Charset: "UTF-8",
+        Data: `Password reset link`,
+      },
+    },
+  };
 
-export const sendTestEmail = async (req, res) => {
-  console.log("send email using SES");
-  res.json({ ok: true });
+  const emailSent = SES.sendEmail(params).promise();
+
+  emailSent
+    .then((data) => {
+      console.log(data);
+      res.json({ ok: true });
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 };
