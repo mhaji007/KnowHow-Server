@@ -73,14 +73,14 @@ export const login = async (req, res) => {
       // Once the token is verified later, we
       // will have access to user id as well.
       // This is the token that browsers will automatically
-      // sends to the server on each request
+      // send to the server on each request
       const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
         expiresIn: process.env.JWT_EXPIRATION_TIME,
       });
       // Return user and token to client, excluding the hashed password
       user.password = undefined;
       // Only works on https - for production
-      // once we have https with ssl certificate
+      // once we have https with ssl certificate we can use the following
       // secure: true
       res.cookie("token", token, {
         httpOnly: true,

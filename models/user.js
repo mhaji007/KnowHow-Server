@@ -56,6 +56,10 @@ const userSchema = new Schema(
     // and once the payment has been finialized we will get the updated
     // session object which will have the paid status changed from false to true
     stripeSessions: {},
+    passwordResetCode: {
+      type: String,
+      default: "",
+    },
   },
   // Created and updated fields will be automatically created
   { timestamp: true }
