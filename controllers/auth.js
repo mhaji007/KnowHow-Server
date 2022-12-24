@@ -99,13 +99,20 @@ export const currentUser = async (req, res) => {
   try {
     // user id is made available on req.user by requireSignin middleware
     // the "-"" before password deselects password before sending in the user
-    // using req.auth here instead of req.user beacuse the decoded JWT payload 
+    // using req.auth here instead of req.user beacuse the decoded JWT payload
     // is now available as req.auth rather than req.user (Migration from v6)
     const user = await User.findById(req.auth._id).select("-password").exec();
     // console.log("Current user", user)
-    return res.json(user);
-    // return res.json({ok:true})
+    // return res.json(user);
+    return res.json({ok:true})
   } catch (err) {
     console.log(err);
   }
+};
+
+// Test Email
+
+export const sendTestEmail = async (req, res) => {
+  console.log("send email using SES");
+  res.json({ ok: true });
 };
