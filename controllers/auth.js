@@ -1,7 +1,8 @@
 import User from "../models/user";
 import { hashPassword, comparePassword } from "../utils/auth";
 import jwt from "jsonwebtoken";
-import AWS from "aws-sdk"
+import AWS from "aws-sdk";
+import { nanoid } from "nanoid";
 
 // AWS config for passing access key and secret, etc.
 
@@ -119,54 +120,65 @@ export const currentUser = async (req, res) => {
     const user = await User.findById(req.auth._id).select("-password").exec();
     // console.log("Current user", user)
     // return res.json(user);
-    return res.json({ok:true})
+    return res.json({ ok: true });
   } catch (err) {
     console.log(err);
   }
 };
 
-// Test Email
+// Reset Email
 export const sendEmail = async (req, res) => {
-  const params = {
-    Source: process.env.EMAIL_FROM,
-    // These email addresses should be verified when in sandbox mode
-    Destination: {
-      ToAddresses: ["hadjikhanimehdi@gmail.com"],
-    },
-    // Email addresses that will receive the response
-    ReplyToAddresses: [process.env.EMAIL_FROM],
-    Message: {
-      Body: {
-        Html: {
-          Charset: "UTF-8",
-          // Message body
-          Data: `
-        <html>
-          <h1>
-            Reset password link
-          </h1>
-          <p>
-            Please use the following link to reset your password
-          </p>
-        </html>
+  try {
+    const { email } = req.body;
+    const shortCode = nanoid(6).toUpperCase();
+    const user = await User.findOneAndUpdate(
+      { email },
+      { passwordResetCode: shortCode }
+    );
+    if (!user) return res.status(400).send("User not found");
+
+    const params = {
+      Source: process.env.EMAIL_FROM,
+      // These email addresses should be verified when in sandbox mode
+      Destination: {
+        ToAddresses: [email],
+      },
+      // Email addresses that will receive the response
+      ReplyToAddresses: [process.env.EMAIL_FROM],
+      Message: {
+        Body: {
+          Html: {
+            Charset: "UTF-8",
+            // Message body
+            Data: `
+          <html>
+            <h1>Reset Your password</h1>
+            <p>We just received a request for a new password from your account.</p>
+            <p>To reset your password, just enter the code below</p>
+            <h2 style="color:black; background-color:yellow; width: intrinsic; width:-moz-max-content; width:-webkit-max-content;width: max-content;">${shortCode}</h2>
+            <p>If you did NOT request a new password, ignore this email and your password will remain unchanged.</p>
+            <i>KnoHow</i>
+          </html>
       `,
+          },
+        },
+        Subject: {
+          Charset: "UTF-8",
+          Data: `Password reset link`,
         },
       },
-      Subject: {
-        Charset: "UTF-8",
-        Data: `Password reset link`,
-      },
-    },
-  };
+    };
 
-  const emailSent = SES.sendEmail(params).promise();
-
-  emailSent
-    .then((data) => {
-      console.log(data);
-      res.json({ ok: true });
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+    const emailSent = SES.sendEmail(params).promise();
+    emailSent
+      .then((data) => {
+        console.log(data);
+        res.json({ ok: true });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  } catch (err) {
+    console.log(err);
+  }
 };
