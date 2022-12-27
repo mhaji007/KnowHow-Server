@@ -188,33 +188,39 @@ export const sendEmail = async (req, res) => {
 export const resetPassword = async (req, res) => {
   try {
     const { email, code, newPassword } = req.body;
-    // console.table({ email, code, newPassword });
+
+    // Hash the new password
     const hashedPassword = await hashPassword(newPassword);
 
-    const user = User.findOneAndUpdate(
-      {
-        email,
-        passwordResetCode: code,
-      },
-      {
-        password: hashedPassword,
-        passwordResetCode: "",
-      }
-    ).exec();
-    /*
-    const registeredUser = await User.findOne({ email }).exec();
-    if (registeredUser.passwordResetCode.toString() === code) {
-      const user = await User.findOneAndUpdate(
-        { passwordResetCode: code },
-        { password: hashedPassword, passwordResetCode: "" }
-      ).exec();
+    // Check to make sure that the email address and the reset code is valid
+    const registeredUser = await User.findOne({
+      email: email,
+      passwordResetCode: code,
+    }).exec();
+
+    // if the email address or code is not valid, return and send response
+    if (!registeredUser) {
+      return res
+        .status(400)
+        .send("Please check the email address or password reset code");
+
+      // If the email and code is valid, update the password
+      // and reset the passwordResetCode to ""
     } else {
-      return response.status(400).send("Code does not match.");
+      const user = await User.findOneAndUpdate(
+        {
+          email: email,
+          passwordResetCode: code,
+        },
+        {
+          password: hashedPassword,
+          passwordResetCode: "",
+        }
+      ).exec();
     }
-    */
     res.json({ ok: true });
   } catch (err) {
-    console.log(err);
-    return res.status(400).send("Error! Try again.");
+    console.log("Reset password error ", err);
+    return res.status(400).send("Password reset error. Something went wrong.");
   }
 };
