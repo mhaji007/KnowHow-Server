@@ -25,19 +25,19 @@ app.use(morgan("dev"));
 
 // Wildcard cors - anyone domain has access
 // to the application
-app.use(cors());
+// app.use(cors());
+
+// Restrict cors - only specified domains
+// have access to the application
+// app.use(cors({ origin: process.env.CLIENT_URL }))
 // If you want to allow credentials then your Access-Control-Allow-Origin must not use *.
 // You will have to specify the exact protocol + domain + port.
-// e.g. app.use(cors({credentials: true, origin: 'http://localhost:3000'}))
+ app.use(cors({credentials: true, origin: process.env.CLIENT_URL }))
 
 // Provides access to data on request body
 app.use(express.json());
 
 app.use(cookieParser());
-
-// Restrict cors - only specified domains
-// have access to the application
-// app.use(cors({ origin: process.env.CLIENT_URL }));
 
 // Route middlewares
 
