@@ -55,7 +55,7 @@ const userSchema = new Schema(
     // Before user makes any purchase we receieve a session object
     // and once the payment has been finialized we will get the updated
     // session object which will have the paid status changed from false to true
-    stripeSessions: {},
+    stripeSession: {},
     passwordResetCode: {
       type: String,
       default: "",
