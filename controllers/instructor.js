@@ -5,15 +5,18 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET);
 export const makeInstructor = async (req, res) => {
   try {
     // Find user from db
-    console.log("req.auth._id from make instructor ========> " + req.auth._id)
+    console.log("req.auth._id from make instructor ========> " + req.auth._id);
     const user = await User.findById(req.auth._id).exec();
     // If user dont have stripe_account_id yet, then create new
-    // Check to make sure if user has tried onboarding again, 
+    // Check to make sure if user has tried onboarding again,
     // but left the process before finishing onboarding (i.e., user
     // already has stripe_account_id)
     if (!user.stripe_account_id) {
-      const account = await stripe.accounts.create({ type: "express", email:user.email });
-      console.log('ACCOUNT => ', account.id)
+      const account = await stripe.accounts.create({
+        type: "express",
+        email: user.email,
+      });
+      console.log("ACCOUNT => ", account.id);
       user.stripe_account_id = account.id;
       user.save();
     }
@@ -24,7 +27,7 @@ export const makeInstructor = async (req, res) => {
       return_url: process.env.STRIPE_REDIRECT_URL,
       type: "account_onboarding",
     });
-      console.log(accountLink)
+    console.log(accountLink);
     // Pre-fill any info such as email (optional), then send url resposne to frontend
     accountLink = Object.assign(accountLink, {
       "stripe_user[email]": user.email,
@@ -35,8 +38,6 @@ export const makeInstructor = async (req, res) => {
     console.log("Make instructor error ", err);
   }
 };
-
-
 
 export const getAccountStatus = async (req, res) => {
   try {
@@ -64,6 +65,19 @@ export const getAccountStatus = async (req, res) => {
         .select("-password")
         .exec();
       res.json(statusUpdated);
+    }
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+export const currentInstructor = async (req, res) => {
+  try {
+    let user = await User.findById(req.auth._id).select("-password").exec();
+    if (!user.role.includes("Instructor")) {
+      return res.status(403);
+    } else {
+      res.json({ ok: true });
     }
   } catch (err) {
     console.log(err);
