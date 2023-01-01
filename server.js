@@ -32,7 +32,17 @@ app.use(morgan("dev"));
 // app.use(cors({ origin: process.env.CLIENT_URL }))
 // If you want to allow credentials then your Access-Control-Allow-Origin must not use *.
 // You will have to specify the exact protocol + domain + port.
- app.use(cors({credentials: true, origin: process.env.CLIENT_URL }))
+ app.use(cors({
+  // origin:[
+  // "http://localhost:3000",
+  // "http://10.0.0.101:3000",
+  // "http://10.0.0.101",
+  // ],
+  origin: process.env.CLIENT_URL,
+  credentials: true,
+  // exposedHeaders: ["set-cookie"],
+  }))
+
 
 // Provides access to data on request body
 app.use(express.json());

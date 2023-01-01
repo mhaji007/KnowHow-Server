@@ -8,6 +8,6 @@ import { requireSignin } from "../middlewares";
 // controllers
 import { makeInstructor } from "../controllers/instructor";
 
-router.post("/make-instructor", requireSignin, makeInstructor);
+router.get("/make-instructor", requireSignin, makeInstructor);
 
 module.exports = router;

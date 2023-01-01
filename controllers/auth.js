@@ -83,8 +83,12 @@ export const login = async (req, res) => {
       // Only works on https - for production
       // once we have https with ssl certificate we can use the following
       // secure: true
-      res.cookie("token", token, {
-        httpOnly: true,
+      // res.cookie("token", token, {
+      //   httpOnly: true,
+      // });
+      res.cookie('token', token, {
+        expires  : new Date(Date.now() + 9999999),
+        httpOnly : false
       });
       //  Send user as json response
       res.json(user);
