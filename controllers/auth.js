@@ -78,6 +78,7 @@ export const login = async (req, res) => {
       const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
         expiresIn: process.env.JWT_EXPIRATION_TIME,
       });
+      console.log("token::::: " + token);
       // Return user and token to client, excluding the hashed password
       user.password = undefined;
       // Only works on https - for production
@@ -88,7 +89,7 @@ export const login = async (req, res) => {
       // });
       res.cookie('token', token, {
         expires  : new Date(Date.now() + 9999999),
-        httpOnly : false
+        httpOnly : true,
       });
       //  Send user as json response
       res.json(user);
@@ -121,6 +122,7 @@ export const currentUser = async (req, res) => {
     // the "-"" before password deselects password before sending in the user
     // using req.auth here instead of req.user beacuse the decoded JWT payload
     // is now available as req.auth rather than req.user (Migration from v6)
+    console.log("req.auth._id from make current user ========> " + req.auth._id)
     const user = await User.findById(req.auth._id).select("-password").exec();
     // console.log("Current user", user)
     // return res.json(user);

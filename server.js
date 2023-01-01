@@ -23,6 +23,13 @@ mongoose
 // Global middlewares (to be used on all routes)
 app.use(morgan("dev"));
 
+
+app.use(cookieParser());
+
+
+// Provides access to data on request body
+app.use(express.json());
+
 // Wildcard cors - anyone domain has access
 // to the application
 // app.use(cors());
@@ -32,22 +39,29 @@ app.use(morgan("dev"));
 // app.use(cors({ origin: process.env.CLIENT_URL }))
 // If you want to allow credentials then your Access-Control-Allow-Origin must not use *.
 // You will have to specify the exact protocol + domain + port.
- app.use(cors({
-  // origin:[
-  // "http://localhost:3000",
-  // "http://10.0.0.101:3000",
-  // "http://10.0.0.101",
-  // ],
+//  app.use(cors({
+//   origin:[
+//   "http://localhost:3000",
+//   "http://10.0.0.101:3000",
+//   "http://10.0.0.101",
+//   ],
+//   origin: process.env.CLIENT_URL,
+//   credentials: true,
+//   exposedHeaders: ["set-cookie"],
+//   }))
+// app.use(cors({ origin: true, credentials: true }))
+
+// app.use(function(req, res, next) {
+//   res.header('Access-Control-Allow-Origin', process.env.CLIENT_URL);
+//   res.header('Access-Control-Allow-Credentials', true);
+//   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+//   next();
+// });
+
+app.use(cors({
   origin: process.env.CLIENT_URL,
   credentials: true,
-  // exposedHeaders: ["set-cookie"],
   }))
-
-
-// Provides access to data on request body
-app.use(express.json());
-
-app.use(cookieParser());
 
 // Route middlewares
 

@@ -13,6 +13,7 @@ import { expressjwt } from "express-jwt";
 // where we can access ._id via req.user._id
 export const requireSignin = expressjwt({
     getToken: (req, res) => req.cookies.token,
+    // getToken: (req, res) => console.log("req.cookies from requireSignin",req.cookies),
     secret: process.env.JWT_SECRET,
     algorithms: ["HS256"],
     userProperty: "auth",
